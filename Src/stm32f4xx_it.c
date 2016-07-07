@@ -170,7 +170,8 @@ void OTG_FS_IRQHandler(void)
 void OTG_HS_IRQHandler(void)
 #endif
 {
-  HAL_HCD_IRQHandler(&hhcd);
+  // NOT USING USB ATM
+  //HAL_HCD_IRQHandler(&hhcd);
 }
 
 /**

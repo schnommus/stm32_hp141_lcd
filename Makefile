@@ -31,7 +31,6 @@ AFLAGS	= $(MCFLAGS)
 SRC = ./Src/startup_stm32f429xx.s \
 	  ./Src/stm32f4xx_it.c \
 	  ./Src/ts_calibration.c \
-	  ./Src/usbh_conf.c \
 	  ./Src/main.c \
 	  ./Src/system_stm32f4xx.c \
 	  ./Src/syscalls.c \
@@ -64,17 +63,6 @@ SRC = ./Src/startup_stm32f429xx.s \
 	  $(STM32_LIBS)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c \
 	  $(STM32_LIBS)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 	  $(STM32_LIBS)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_scsi.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_bot.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ioreq.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.c \
-	  $(STM32_LIBS)/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_pipes.c \
-	  $(STM32_LIBS)/Middlewares/Third_Party/FatFs/src/ff.c \
-	  $(STM32_LIBS)/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c \
-	  $(STM32_LIBS)/Middlewares/Third_Party/FatFs/src/diskio.c \
-	  $(STM32_LIBS)/Middlewares/Third_Party/FatFs/src/drivers/usbh_diskio.c \
 
 OBJDIR = .
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
