@@ -36,7 +36,7 @@ SRC = \
 	./Src/main.c \
 	./Src/GUIConf.c \
 	./Src/LCDConf.c \
-	./Src/MEMDEV_WM_Ticker.c \
+	./Src/BASIC_HelloWorld.c \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery.c \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_sdram.c \
 	$(STM32_LIBS)/Middlewares/ST/STemWin/OS/GUI_X.c \
@@ -70,5 +70,4 @@ $(EXECUTABLE): $(SRC)
 	$(CC) $(CFLAGS) $^ -o $@ -l:STemWin528_CM7_GCC.a -lm
 
 clean:
-	rm -f Startup.lst  $(TARGET)  $(EXECUTABLE) *.lst $(OBJ) $(AUTOGEN)  *.out *.map \
-*.dmp
+	rm -f *.elf
