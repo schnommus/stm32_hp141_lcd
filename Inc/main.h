@@ -1,14 +1,14 @@
 /**
   ******************************************************************************
-  * @file    Display/LTDC_Paint/Inc/main.h 
+  * @file    STemWin/STemWin_HelloWorld/Inc/main.h 
   * @author  MCD Application Team
-  * @version V1.3.4
-  * @date    06-May-2016
+  * @version V1.0.3
+  * @date    22-April-2016
   * @brief   Header for main.c module
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics International N.V. 
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -43,33 +43,22 @@
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */  
+  */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f429i_discovery.h"
-#include "stm32f429i_discovery_lcd.h"
-#include "stm32f429i_discovery_ts.h"
-#include <stdlib.h>
+#include "stm32f7xx_hal.h"
+#include "GUI.h"
 
-/* FatFs includes component */
-#include "ff_gen_drv.h"
-#include "usbh_diskio.h"
+/* EVAL includes component */
+#include "stm32746g_discovery.h"
+#include "stm32746g_discovery_sdram.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-#define LCD_FRAME_BUFFER_LAYER0                  (LCD_FRAME_BUFFER+0x130000)
-#define LCD_FRAME_BUFFER_LAYER1                  LCD_FRAME_BUFFER
-#define CONVERTED_FRAME_BUFFER                   (LCD_FRAME_BUFFER+0x260000)
-
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-void Touchscreen_Calibration (void);
-uint16_t Calibration_GetX(uint16_t x);
-uint16_t Calibration_GetY(uint16_t y);
-uint8_t IsCalibrationDone(void);
 
 #endif /* __MAIN_H */
 
