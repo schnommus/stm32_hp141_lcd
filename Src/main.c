@@ -74,7 +74,7 @@ static void CPU_CACHE_Enable(void);
 int main(void)
 {
   /* Enable the CPU Cache */
-  CPU_CACHE_Enable();
+  //CPU_CACHE_Enable();
 
   /* STM32F7xx HAL library initialization:
        - Configure the Flash ART accelerator on ITCM interface
@@ -104,7 +104,7 @@ int main(void)
        + ClockDivision = 0
        + Counter direction = Up
   */
-  TimHandle.Init.Period = 500 - 1;
+  TimHandle.Init.Period = 10000 - 1;
   TimHandle.Init.Prescaler = uwPrescalerValue;
   TimHandle.Init.ClockDivision = 0;
   TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -149,10 +149,6 @@ int main(void)
   * @param  htim: TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  BSP_Background();
-}
 
 /**
   * @brief TIM MSP Initialization 
