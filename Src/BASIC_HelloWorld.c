@@ -25,18 +25,7 @@ Purpose     : Simple demo drawing "Hello world"
 #include <stdlib.h>
 #include "stm32f7xx_hal.h"
 
-/*********************************************************************
-*
-*       Public code
-*
-**********************************************************************
-*/
-/*********************************************************************
-*
-*       MainTask
-*/
-
-short points[8000];
+short points[400];
 
 long frameCounter = 0;
 short fps = 0;
@@ -50,22 +39,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void MainTask(void) {
 
-  int j;
-  for( j = 0; j != 8000; ++j ) {
-    points[j] = rand()%200;
-  }
-  while(1) {
-      GUI_MULTIBUF_Begin();
-      GUI_Clear();
-      GUI_SetFont(&GUI_Font20_1);
-      char buf[32];
-      snprintf(buf, 32, "%d FPS. %dS UP", fps, up);
-      GUI_DispStringAt( buf, 10, 10 );
-      GUI_DrawGraph( points+rand()%7600, 400, 40, 40 );
-      //GUI_DispStringAt("Hello world!", (LCD_GetXSize()-100)/2, (LCD_GetYSize()-20)/2+50*sin(((float)i)/100.0f));
-      GUI_MULTIBUF_End();
-      ++frameCounter;
-  }
+    while(1) {
+        int j;
+        for( j = 0; j != 400; ++j ) {
+            points[j] = rand()%200;
+        }
+        GUI_MULTIBUF_Begin();
+        GUI_Clear();
+        GUI_SetFont(&GUI_Font20_1);
+        char buf[32];
+        snprintf(buf, 32, "%d FPS. %dS UP", fps, up);
+        GUI_DispStringAt( buf, 10, 10 );
+        GUI_DrawGraph( points, 400, 40, 40 );
+        //GUI_DispStringAt("Hello world!", (LCD_GetXSize()-100)/2, (LCD_GetYSize()-20)/2+50*sin(((float)i)/100.0f));
+        GUI_MULTIBUF_End();
+        ++frameCounter;
+    }
 }
-
-/*************************** End of file ****************************/

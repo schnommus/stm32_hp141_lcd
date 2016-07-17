@@ -12,6 +12,7 @@ OD=arm-none-eabi-objdump
 DEFS = -DSTM32F746xx -DUSE_HAL_DRIVER -DUSE_STM32746G_DISCOVERY
 MCU = cortex-m7
 MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+STD = -std=gnu90
 
 STM32_INCLUDES = -I$(STM32_LIBS)/Utilities \
 	-I$(STM32_LIBS)/Utilities/Fonts \
@@ -24,7 +25,7 @@ STM32_INCLUDES = -I$(STM32_LIBS)/Utilities \
 
 OPTIMIZE = -O3
 
-CFLAGS	= $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -IInc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,Src/STM32F746NGHx_FLASH.ld
+CFLAGS	= $(MCFLAGS) $(STD)  $(OPTIMIZE)  $(DEFS) -IInc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,Src/STM32F746NGHx_FLASH.ld
 
 AFLAGS	= $(MCFLAGS)
 

@@ -1,2 +1,4 @@
 *.elf
 *.pyc
+*.swp
+*.swo

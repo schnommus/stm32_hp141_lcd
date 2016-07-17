@@ -74,7 +74,7 @@ static void CPU_CACHE_Enable(void);
 int main(void)
 {
   /* Enable the CPU Cache */
-  //CPU_CACHE_Enable();
+  CPU_CACHE_Enable();
 
   /* STM32F7xx HAL library initialization:
        - Configure the Flash ART accelerator on ITCM interface
@@ -256,7 +256,7 @@ static void CPU_CACHE_Enable(void)
   SCB_EnableICache();
 
   /* Enable D-Cache */
-  SCB_EnableDCache();
+  //SCB_EnableDCache();
 }
 
 #ifdef  USE_FULL_ASSERT
