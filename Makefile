@@ -12,7 +12,7 @@ OD=arm-none-eabi-objdump
 DEFS = -DSTM32F746xx -DUSE_HAL_DRIVER -DUSE_STM32746G_DISCOVERY
 MCU = cortex-m7
 MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard
-STD = -std=gnu90
+STD = -std=gnu11
 
 STM32_INCLUDES = -I$(STM32_LIBS)/Utilities \
 	-I$(STM32_LIBS)/Utilities/Fonts \
@@ -25,19 +25,19 @@ STM32_INCLUDES = -I$(STM32_LIBS)/Utilities \
 
 OPTIMIZE = -O3
 
-CFLAGS	= $(MCFLAGS) $(STD)  $(OPTIMIZE)  $(DEFS) -IInc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,Src/STM32F746NGHx_FLASH.ld
+CFLAGS	= $(MCFLAGS) $(STD)  $(OPTIMIZE)  $(DEFS) -Iinc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,src/sys/STM32F746NGHx_FLASH.ld
 
 AFLAGS	= $(MCFLAGS)
 
 SRC = \
-	./Src/startup_stm32f746xx.s \
-	./Src/system_stm32f7xx.c \
-	./Src/stm32f7xx_it.c \
-	./Src/syscalls.c \
-	./Src/main.c \
-	./Src/GUIConf.c \
-	./Src/LCDConf.c \
-	./Src/BASIC_HelloWorld.c \
+	src/main.c \
+	src/maintask.c \
+	src/sys/system_stm32f7xx.c \
+	src/sys/stm32f7xx_it.c \
+	src/sys/syscalls.c \
+	src/sys/GUIConf.c \
+	src/sys/LCDConf.c \
+	src/sys/startup_stm32f746xx.s \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery.c \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_sdram.c \
 	$(STM32_LIBS)/Middlewares/ST/STemWin/OS/GUI_X.c \
