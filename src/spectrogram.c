@@ -19,7 +19,7 @@ spectrogram_t *spectrogram_default() {
     s->graticule_step_y = -10;
 
     s->size_x = 350;
-    s->size_y = 230;
+    s->size_y = 225;
 
     s->npoints = s->size_x;
 
