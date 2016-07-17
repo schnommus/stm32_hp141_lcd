@@ -14,7 +14,7 @@ flags = [
     "-DUSE_HAL_DRIVER",
     "-DUSE_STM32746G_DISCOVERY",
     '-Wall',
-    "-IInc",
+    "-Iinc",
     "-I/opt/STM32Cube_FW_F7_V1.4.0/Utilities",
     "-I/opt/STM32Cube_FW_F7_V1.4.0/Utilities/Fonts",
     "-I/opt/STM32Cube_FW_F7_V1.4.0/Drivers/BSP/STM32746G-Discovery",
