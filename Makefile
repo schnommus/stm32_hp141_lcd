@@ -32,6 +32,7 @@ AFLAGS	= $(MCFLAGS)
 SRC = \
 	src/main.c \
 	src/maintask.c \
+	src/spectrogram.c \
 	src/sys/system_stm32f7xx.c \
 	src/sys/stm32f7xx_it.c \
 	src/sys/syscalls.c \
