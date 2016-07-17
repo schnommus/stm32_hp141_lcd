@@ -27,12 +27,18 @@ void MainTask(void) {
         GUI_MULTIBUF_Begin();
         GUI_Clear();
 
-        GUI_SetFont(&GUI_Font20_1);
+        GUI_SetFont(&GUI_Font8_ASCII);
         char buf[32];
         snprintf(buf, 32, "%d FPS. %dS UP", fps, up);
-        GUI_DispStringAt( buf, 10, 10 );
+        GUI_SetTextAlign( GUI_TA_RIGHT | GUI_TA_BOTTOM);
+        GUI_DispStringAt( buf, LCD_GetXSize(), LCD_GetYSize());
 
         spectrogram_draw(s);
+
+        GUI_SetFont(&GUI_Font10_ASCII);
+        GUI_SetTextAlign( GUI_TA_LEFT | GUI_TA_BOTTOM);
+        GUI_DispStringAt( "START: 10.00 MHz", 10, LCD_GetYSize()-16);
+        GUI_DispStringAt( "STOP: 2.000 GHz", 10, LCD_GetYSize());
 
         GUI_MULTIBUF_End();
         ++frameCounter;
