@@ -75,12 +75,12 @@ void MainTask(void) {
 
         GUI_SetFont(&GUI_Font8x15B_ASCII);
         GUI_SetTextAlign( GUI_TA_LEFT | GUI_TA_BOTTOM);
-        GUI_DispStringAt( "START: 10.00 MHz", 10, LCD_GetYSize()-16);
-        GUI_DispStringAt( "STOP:  2.000 GHz", 10, LCD_GetYSize());
-        GUI_DispStringAt( "RBW: 300.0 KHz", 158, LCD_GetYSize()-16);
-        GUI_DispStringAt( "ST:  10.00 mS", 158, LCD_GetYSize());
-        GUI_DispStringAt( "MIX. MODE: 1+", 290, LCD_GetYSize()-16);
-        GUI_DispStringAt( "0.0 - 2.0 GHz", 290, LCD_GetYSize());
+        GUI_DispStringAt( "START: 10.00 MHz", 5, LCD_GetYSize()-16);
+        GUI_DispStringAt( "STOP:  2.000 GHz", 5, LCD_GetYSize());
+        GUI_DispStringAt( "REF.LVL: 0 dBm", 153, LCD_GetYSize()-16);
+        GUI_DispStringAt( "RBW: 300.0 KHz", 153, LCD_GetYSize());
+        GUI_DispStringAt( "MIX.MODE: 1+", 285, LCD_GetYSize()-16);
+        GUI_DispStringAt( "ST: 10.00 mS", 285, LCD_GetYSize());
 
         BSP_Pointer_Update();
         GUI_Exec();

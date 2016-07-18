@@ -9,7 +9,7 @@
 spectrogram_t *spectrogram_default() {
     spectrogram_t *s = malloc(sizeof(spectrogram_t));
 
-    s->pos_x = 50;
+    s->pos_x = 30;
     s->pos_y = 5;
 
     s->graticules_nx = 12;
@@ -67,9 +67,9 @@ void spectrogram_draw(spectrogram_t* s) {
     GUI_SetColor(GUI_WHITE);
     GUI_SetFont(&GUI_Font8_ASCII);
 
+    char buf[16];
     for( int i = 0; i != s->graticules_ny+1; ++i ) {
-        char buf[16];
-        snprintf(buf, 32, "%d dBm",(int)(s->graticule_start_y + i*s->graticule_step_y));
+        snprintf(buf, 32, "%d",(int)(s->graticule_start_y + i*s->graticule_step_y));
         GUI_SetTextAlign( GUI_TA_RIGHT | GUI_TA_VCENTER);
         GUI_DispStringAt( buf, -3 + s->pos_x, s->pos_y + i * s->size_y/s->graticules_ny );
     }
