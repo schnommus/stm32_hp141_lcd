@@ -34,6 +34,7 @@ SRC = \
 	src/maintask.c \
 	src/spectrogram.c \
 	src/set_frequencyDLG.c \
+	src/menuDLG.c \
 	src/sys/system_stm32f7xx.c \
 	src/sys/stm32f7xx_it.c \
 	src/sys/syscalls.c \

@@ -5,6 +5,7 @@
 #include "stm32746g_discovery_ts.h"
 #include "spectrogram.h"
 #include "set_frequencyDLG.h"
+#include "menuDLG.h"
 #include "BUTTON.h"
 
 short points[400];
@@ -52,11 +53,16 @@ void MainTask(void) {
     BUTTON_SetDefaultTextColor( GUI_BLACK, BUTTON_CI_PRESSED);
 
     FRAMEWIN_SetDefaultClientColor( GUI_BLACK );
+    FRAMEWIN_SetDefaultTitleHeight(0);
+    FRAMEWIN_SetDefaultBorderSize(0);
 
-    GUI_HWIN freq_dialog = Createset_frequency();
+    //GUI_HWIN freq_dialog = Createset_frequency();
+    //WM_ShowWindow( freq_dialog );
+    //WM_SetFocus( freq_dialog );
 
-    WM_ShowWindow( freq_dialog );
-    WM_SetFocus( freq_dialog );
+    GUI_HWIN menu_dialog = Createmenu();
+    WM_ShowWindow( menu_dialog );
+    WM_SetFocus( menu_dialog );
 
     while(1) {
 
