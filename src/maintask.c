@@ -4,6 +4,7 @@
 #include "stm32f7xx_hal.h"
 #include "spectrogram.h"
 #include "BUTTON.h"
+#include "WM.h"
 
 short points[400];
 
@@ -21,8 +22,6 @@ void MainTask(void) {
 
     spectrogram_t *s = spectrogram_default();
 
-    BUTTON_Handle button = BUTTON_Create( LCD_GetXSize()-80, 0, 80, 50, GUI_ID_BUTTON0, WM_CF_SHOW);
-
     while(1) {
 
         spectrogram_fake_data(s);
@@ -32,7 +31,7 @@ void MainTask(void) {
 
         GUI_SetFont(&GUI_Font8_ASCII);
         char buf[32];
-        snprintf(buf, 32, "%d FPS. %dS UP", fps, up);
+        snprintf(buf, 32, "%dF/%dU", fps, up);
         GUI_SetTextAlign( GUI_TA_RIGHT | GUI_TA_BOTTOM);
         GUI_DispStringAt( buf, LCD_GetXSize(), LCD_GetYSize());
 
@@ -42,10 +41,10 @@ void MainTask(void) {
         GUI_SetTextAlign( GUI_TA_LEFT | GUI_TA_BOTTOM);
         GUI_DispStringAt( "START: 10.00 MHz", 10, LCD_GetYSize()-16);
         GUI_DispStringAt( "STOP:  2.000 GHz", 10, LCD_GetYSize());
-        GUI_DispStringAt( "CENTER: 1.500 GHz", 170, LCD_GetYSize()-16);
-        GUI_DispStringAt( "SPAN:   1.990 GHz", 170, LCD_GetYSize());
-
-        GUI_Exec();
+        GUI_DispStringAt( "RBW: 300.0 KHz", 158, LCD_GetYSize()-16);
+        GUI_DispStringAt( "ST:  10.00 mS", 158, LCD_GetYSize());
+        GUI_DispStringAt( "MIX. MODE: 1+", 290, LCD_GetYSize()-16);
+        GUI_DispStringAt( "0.0 - 2.0 GHz", 290, LCD_GetYSize());
 
         GUI_MULTIBUF_End();
         ++frameCounter;
