@@ -33,6 +33,7 @@ SRC = \
 	src/main.c \
 	src/maintask.c \
 	src/spectrogram.c \
+	src/set_frequencyDLG.c \
 	src/sys/system_stm32f7xx.c \
 	src/sys/stm32f7xx_it.c \
 	src/sys/syscalls.c \
@@ -41,6 +42,9 @@ SRC = \
 	src/sys/startup_stm32f746xx.s \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery.c \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_sdram.c \
+	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_ts.c \
+	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_lcd.c \
+	$(STM32_LIBS)/Drivers/BSP/Components/ft5336/ft5336.c \
 	$(STM32_LIBS)/Middlewares/ST/STemWin/OS/GUI_X.c \
 	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c \
 	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c \
