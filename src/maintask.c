@@ -5,6 +5,7 @@
 #include "stm32746g_discovery_ts.h"
 #include "spectrogram.h"
 #include "set_frequencyDLG.h"
+#include "BUTTON.h"
 
 short points[400];
 
@@ -26,7 +27,34 @@ void MainTask(void) {
 
     spectrogram_t *s = spectrogram_default();
 
+    BUTTON_SKINFLEX_PROPS Props;
+    BUTTON_GetSkinFlexProps(&Props, BUTTON_SKINFLEX_PI_ENABLED);
+    Props.aColorFrame[0] = GUI_WHITE;
+    Props.aColorFrame[1] = GUI_DARKGRAY;
+    Props.aColorFrame[2] = GUI_BLACK;
+    Props.aColorUpper[0] = GUI_BLACK;
+    Props.aColorUpper[1] = GUI_BLACK;
+    Props.aColorLower[0] = GUI_BLACK;
+    Props.aColorLower[1] = GUI_BLACK;
+    Props.Radius = 6;
+    BUTTON_SetSkinFlexProps(&Props, BUTTON_SKINFLEX_PI_ENABLED);
+    Props.aColorFrame[0] = GUI_GREEN;
+    Props.aColorFrame[1] = GUI_DARKGREEN;
+    BUTTON_SetSkinFlexProps(&Props, BUTTON_SKINFLEX_PI_FOCUSSED);
+    Props.aColorFrame[2] = GUI_YELLOW;
+    Props.aColorUpper[0] = GUI_YELLOW;
+    Props.aColorUpper[1] = GUI_YELLOW;
+    Props.aColorLower[0] = GUI_YELLOW;
+    Props.aColorLower[1] = GUI_YELLOW;
+    BUTTON_SetSkinFlexProps(&Props, BUTTON_SKINFLEX_PI_PRESSED);
+    BUTTON_SetDefaultTextColor( GUI_WHITE, BUTTON_CI_UNPRESSED);
+    BUTTON_SetDefaultTextColor( GUI_WHITE, BUTTON_CI_DISABLED);
+    BUTTON_SetDefaultTextColor( GUI_BLACK, BUTTON_CI_PRESSED);
+
+    FRAMEWIN_SetDefaultClientColor( GUI_BLACK );
+
     GUI_HWIN freq_dialog = Createset_frequency();
+
     WM_ShowWindow( freq_dialog );
     WM_SetFocus( freq_dialog );
 

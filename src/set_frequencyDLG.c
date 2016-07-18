@@ -22,6 +22,8 @@
 // USER END
 
 #include "set_frequencyDLG.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 /*********************************************************************
 *
@@ -91,6 +93,38 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
   // USER END
 };
 
+void PressNumber(WM_HWIN hWin, int n ) {
+    WM_HWIN hEdit = WM_GetDialogItem(hWin, ID_EDIT_0);
+
+    char buf[32];
+    EDIT_GetText( hEdit, buf, 32 );
+
+    for( int i = 0; i != 31; ++i ) {
+        if( buf[i] == 0 ) {
+            buf[i] = '0'+n;
+            buf[i+1] = 0;
+            EDIT_SetText( hEdit, buf );
+            return;
+        }
+    }
+}
+
+void PressDot(WM_HWIN hWin) {
+    WM_HWIN hEdit = WM_GetDialogItem(hWin, ID_EDIT_0);
+
+    char buf[32];
+    EDIT_GetText( hEdit, buf, 32 );
+
+    for( int i = 0; i != 31; ++i ) {
+        if( buf[i] == 0 ) {
+            buf[i] = '.';
+            buf[i+1] = 0;
+            EDIT_SetText( hEdit, buf );
+            return;
+        }
+    }
+}
+
 /*********************************************************************
 *
 *       Static code
@@ -114,11 +148,12 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 
   switch (pMsg->MsgId) {
   case WM_INIT_DIALOG:
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_FRAMEWIN_0);
     //
     // Initialization of 'Edit'
     //
     hItem = WM_GetDialogItem(pMsg->hWin, ID_EDIT_0);
-    EDIT_SetText(hItem, "123");
+    EDIT_SetText(hItem, "");
     EDIT_SetFont(hItem, GUI_FONT_32B_ASCII);
     EDIT_SetTextAlign(hItem, GUI_TA_RIGHT | GUI_TA_VCENTER);
     //
@@ -235,6 +270,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 1);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -249,8 +285,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
-        hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
-        BUTTON_SetText( hItem, "TWO" );
+        PressNumber(pMsg->hWin, 2);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -265,6 +300,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 3);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -279,6 +315,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 4);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -293,6 +330,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 5);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -307,6 +345,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 6);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -321,6 +360,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 7);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -335,6 +375,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 8);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -349,6 +390,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 9);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -363,6 +405,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressNumber(pMsg->hWin, 0);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -377,6 +420,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        PressDot(pMsg->hWin);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -447,6 +491,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        WM_HideWindow(pMsg->hWin);
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -461,6 +506,8 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+        hItem = WM_GetDialogItem(pMsg->hWin, ID_EDIT_0);
+        EDIT_SetText(hItem, "");
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
