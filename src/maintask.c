@@ -7,6 +7,7 @@
 #include "set_frequencyDLG.h"
 #include "menuDLG.h"
 #include "BUTTON.h"
+#include "options.h"
 
 short points[400];
 
@@ -25,6 +26,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void MainTask(void) {
 
     BSP_TS_Init(480, 272);
+
+    options_init();
 
     spectrogram_t *s = spectrogram_default();
 

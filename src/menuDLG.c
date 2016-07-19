@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "FRAMEWIN.h"
+#include "options.h"
+#include "string.h"
 
 /*********************************************************************
 *
@@ -40,6 +42,8 @@
 #define ID_BUTTON_4    (GUI_ID_USER + 0x08)
 #define ID_BUTTON_5    (GUI_ID_USER + 0x09)
 #define ID_BUTTON_CATEGORY    (GUI_ID_USER + 0x0A)
+
+#define N_MENU_BUTTONS 6
 
 
 // USER START (Optionally insert additional defines)
@@ -79,6 +83,59 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 **********************************************************************
 */
 
+void option_to_string( option_t *o, char *buf ) {
+    char value[32] = "";
+    if( o->type == OPTION_TYPE_SELECTION ) {
+        selection_option_t *so = o->data;
+        for( int i = 0; i != so->nSelections; ++i ) {
+            if(so->selections[i].id == so->value) {
+                strcpy(value, so->selections[i].name);
+            }
+        }
+    } else if( o->type == OPTION_TYPE_FREQUENCY ) {
+        double f = *(double*)o->data;
+        char *postfix = "";
+        if ( 1e3 < f && f < 1e6 ) {
+            f /= 1e3;
+            postfix = "k";
+        } else if (1e6 < f && f < 1e9 ) {
+            f /= 1e6;
+            postfix = "M";
+        } else if( 1e9 < f && f < 1e12 ) {
+            f /= 1e9;
+            postfix = "G";
+        } else {
+            // Nothing
+        }
+        snprintf(value, 32, "%g %sHz", f, postfix);
+    } else {
+        // Nothing, unknown option type
+    }
+    snprintf(buf, 64, "%s:\n%s", o->name, value);
+}
+
+void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, int currentCategory) {
+    category_t *this_category = &get_option_menu()->categories[currentCategory];
+
+    BUTTON_SetText( hCategoryButton, this_category->name );
+
+    // Clear all buttons first
+    for(int i = 0; i != N_MENU_BUTTONS; ++i) {
+        BUTTON_SetText(hButtons[i], "");
+    }
+
+    int currentButton = 0;
+    char buf[64];
+    for(int i = 0; i != this_category->nOptions; ++i) {
+        option_t *this_option = &this_category->options[i];
+        if(this_option->enable) {
+            option_to_string(this_option, buf);
+            BUTTON_SetText(hButtons[currentButton], buf);
+            ++currentButton;
+        }
+    }
+}
+
 // USER START (Optionally insert additional static code)
 // USER END
 
@@ -90,52 +147,47 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   WM_HWIN hItem;
   int     NCode;
   int     Id;
+
   // USER START (Optionally insert additional variables)
   // USER END
+
+  static WM_HWIN hCategoryButton;
+  static WM_HWIN hButtons[6];
+  static int currentCategory = 0;
 
   switch (pMsg->MsgId) {
   case WM_INIT_DIALOG:
     hItem = WM_GetDialogItem(pMsg->hWin, ID_FRAMEWIN_0);
 
 
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
-    BUTTON_SetFont(hItem, GUI_FONT_20B_ASCII);
-    //
-    // Initialization of '1'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
-    BUTTON_SetFont(hItem, GUI_FONT_13B_ASCII);
-    //
-    // Initialization of '2'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
-    BUTTON_SetFont(hItem, GUI_FONT_20B_ASCII);
-    //
-    // Initialization of '3'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
-    BUTTON_SetFont(hItem, GUI_FONT_24B_ASCII);
-    //
-    // Initialization of '4'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
-    BUTTON_SetFont(hItem, GUI_FONT_24B_ASCII);
-    //
-    // Initialization of '5'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
-    BUTTON_SetFont(hItem, GUI_FONT_24B_ASCII);
-    //
-    // Initialization of '6'
-    //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
-    BUTTON_SetFont(hItem, GUI_FONT_24B_ASCII);
+    hCategoryButton = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
+    BUTTON_SetFont(hCategoryButton, GUI_FONT_20B_ASCII);
+
+    hButtons[0] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
+    hButtons[1] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
+    hButtons[2] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
+    hButtons[3] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
+    hButtons[4] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
+    hButtons[5] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
+
+    for( int i = 0; i !=  N_MENU_BUTTONS; ++i ) {
+        BUTTON_SetFont(hButtons[i], GUI_FONT_13B_ASCII);
+    }
+
+    refreshMenu(hCategoryButton, hButtons, currentCategory);
 
     break;
   case WM_NOTIFY_PARENT:
     Id    = WM_GetId(pMsg->hWinSrc);
     NCode = pMsg->Data.v;
     switch(Id) {
+    case ID_BUTTON_CATEGORY: // Notifications sent by '1'
+      if( NCode == WM_NOTIFICATION_RELEASED ) {
+          ++currentCategory;
+          currentCategory %= get_option_menu()->nCategories;
+          refreshMenu(hCategoryButton, hButtons, currentCategory);
+      }
+      break;
     case ID_BUTTON_0: // Notifications sent by '1'
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:

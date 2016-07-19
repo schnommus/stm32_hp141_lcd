@@ -36,11 +36,11 @@ void options_init() {
     category_t *view = option_add_category("VIEW");
 
     selection_t view_fdisp_modes[] = {
-        { "CENTER & SPAN", OPTION_ID_VIEW_FDISP_CENTERSPAN },
-        { "START & STOP", OPTION_ID_VIEW_FDISP_STARTSTOP },
+        { "CENTR/SPN", OPTION_ID_VIEW_FDISP_CENTERSPAN },
+        { "STRT&STOP", OPTION_ID_VIEW_FDISP_STARTSTOP },
     };
 
-    option_add_selection(view, OPTION_ID_VIEW_FDISP, "Freq. Display", view_fdisp_modes, sizeof(view_fdisp_modes)/sizeof(selection_t), OPTION_ID_VIEW_FDISP_STARTSTOP);
+    option_add_selection(view, OPTION_ID_VIEW_FDISP, "Freq. Displ.", view_fdisp_modes, sizeof(view_fdisp_modes)/sizeof(selection_t), OPTION_ID_VIEW_FDISP_STARTSTOP);
     option_enable(OPTION_ID_VIEW_FDISP);
 
     selection_t view_waterfall_modes[] = {
@@ -50,6 +50,8 @@ void options_init() {
 
     option_add_selection(view, OPTION_ID_VIEW_WATERFALL, "Waterfall", view_waterfall_modes, sizeof(view_waterfall_modes)/sizeof(selection_t), OPTION_ID_VIEW_WATERFALL_OFF);
     option_enable(OPTION_ID_VIEW_WATERFALL);
+
+    options_refresh();
 }
 
 void options_refresh() {
