@@ -83,6 +83,22 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 **********************************************************************
 */
 
+void option_press( option_t *o ) {
+    if( o->type == OPTION_TYPE_SELECTION ) {
+        selection_option_t *so = o->data;
+        for( int i = 0; i != so->nSelections; ++i ) {
+            if(so->selections[i].id == so->value) {
+                so->value = so->selections[(i+1)%so->nSelections].id;
+                return;
+            }
+        }
+    } else if( o->type == OPTION_TYPE_FREQUENCY ) {
+        GUI_MessageBox("NOT YET EY!", "frequency alter", 0);
+    } else {
+        // Nothing, unknown option type
+    }
+}
+
 void option_to_string( option_t *o, char *buf ) {
     char value[32] = "";
     if( o->type == OPTION_TYPE_SELECTION ) {
@@ -114,7 +130,9 @@ void option_to_string( option_t *o, char *buf ) {
     snprintf(buf, 64, "%s:\n%s", o->name, value);
 }
 
-void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, int currentCategory) {
+void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_options, int currentCategory) {
+    options_refresh();
+
     category_t *this_category = &get_option_menu()->categories[currentCategory];
 
     BUTTON_SetText( hCategoryButton, this_category->name );
@@ -122,6 +140,7 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, int currentCategory
     // Clear all buttons first
     for(int i = 0; i != N_MENU_BUTTONS; ++i) {
         BUTTON_SetText(hButtons[i], "");
+        button_options[i] = 0;
     }
 
     int currentButton = 0;
@@ -131,6 +150,7 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, int currentCategory
         if(this_option->enable) {
             option_to_string(this_option, buf);
             BUTTON_SetText(hButtons[currentButton], buf);
+            button_options[currentButton] = this_option;
             ++currentButton;
         }
     }
@@ -144,144 +164,103 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, int currentCategory
 *       _cbDialog
 */
 static void _cbDialog(WM_MESSAGE * pMsg) {
-  WM_HWIN hItem;
-  int     NCode;
-  int     Id;
+    WM_HWIN hItem;
+    int     NCode;
+    int     Id;
 
-  // USER START (Optionally insert additional variables)
-  // USER END
-
-  static WM_HWIN hCategoryButton;
-  static WM_HWIN hButtons[6];
-  static int currentCategory = 0;
-
-  switch (pMsg->MsgId) {
-  case WM_INIT_DIALOG:
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_FRAMEWIN_0);
-
-
-    hCategoryButton = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
-    BUTTON_SetFont(hCategoryButton, GUI_FONT_20B_ASCII);
-
-    hButtons[0] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
-    hButtons[1] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
-    hButtons[2] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
-    hButtons[3] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
-    hButtons[4] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
-    hButtons[5] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
-
-    for( int i = 0; i !=  N_MENU_BUTTONS; ++i ) {
-        BUTTON_SetFont(hButtons[i], GUI_FONT_13B_ASCII);
-    }
-
-    refreshMenu(hCategoryButton, hButtons, currentCategory);
-
-    break;
-  case WM_NOTIFY_PARENT:
-    Id    = WM_GetId(pMsg->hWinSrc);
-    NCode = pMsg->Data.v;
-    switch(Id) {
-    case ID_BUTTON_CATEGORY: // Notifications sent by '1'
-      if( NCode == WM_NOTIFICATION_RELEASED ) {
-          ++currentCategory;
-          currentCategory %= get_option_menu()->nCategories;
-          refreshMenu(hCategoryButton, hButtons, currentCategory);
-      }
-      break;
-    case ID_BUTTON_0: // Notifications sent by '1'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    case ID_BUTTON_1: // Notifications sent by '2'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    case ID_BUTTON_2: // Notifications sent by '3'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    case ID_BUTTON_3: // Notifications sent by '4'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    case ID_BUTTON_4: // Notifications sent by '5'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    case ID_BUTTON_5: // Notifications sent by '6'
-      switch(NCode) {
-      case WM_NOTIFICATION_CLICKED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      case WM_NOTIFICATION_RELEASED:
-        // USER START (Optionally insert code for reacting on notification message)
-        // USER END
-        break;
-      // USER START (Optionally insert additional code for further notification handling)
-      // USER END
-      }
-      break;
-    // USER START (Optionally insert additional code for further Ids)
+    // USER START (Optionally insert additional variables)
     // USER END
+
+    static WM_HWIN hCategoryButton;
+    static WM_HWIN hButtons[6];
+    static option_t *button_options[6];
+    static int currentCategory = 0;
+
+    switch (pMsg->MsgId) {
+        case WM_INIT_DIALOG:
+            hItem = WM_GetDialogItem(pMsg->hWin, ID_FRAMEWIN_0);
+
+
+            hCategoryButton = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
+            BUTTON_SetFont(hCategoryButton, GUI_FONT_20B_ASCII);
+
+            hButtons[0] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
+            hButtons[1] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
+            hButtons[2] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
+            hButtons[3] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
+            hButtons[4] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
+            hButtons[5] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
+
+            for( int i = 0; i !=  N_MENU_BUTTONS; ++i ) {
+                BUTTON_SetFont(hButtons[i], GUI_FONT_13B_ASCII);
+            }
+
+            refreshMenu(hCategoryButton, hButtons, button_options, currentCategory);
+
+            break;
+        case WM_NOTIFY_PARENT:
+            Id    = WM_GetId(pMsg->hWinSrc);
+            NCode = pMsg->Data.v;
+            switch(Id) {
+                case ID_BUTTON_CATEGORY: // Notifications sent by '1'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        ++currentCategory;
+                        currentCategory %= get_option_menu()->nCategories;
+                    }
+                    break;
+                case ID_BUTTON_0: // Notifications sent by '1'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[0] ) {
+                            option_press( button_options[0] );
+                        }
+                    }
+                    break;
+                case ID_BUTTON_1: // Notifications sent by '2'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[1] ) {
+                            option_press( button_options[1] );
+                        }
+                    }
+                    break;
+                case ID_BUTTON_2: // Notifications sent by '3'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[2] ) {
+                            option_press( button_options[2] );
+                        }
+                    }
+                    break;
+                case ID_BUTTON_3: // Notifications sent by '4'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[3] ) {
+                            option_press( button_options[3] );
+                        }
+                    }
+                    break;
+                case ID_BUTTON_4: // Notifications sent by '5'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[4] ) {
+                            option_press( button_options[4] );
+                        }
+                    }
+                    break;
+                case ID_BUTTON_5: // Notifications sent by '6'
+                    if( NCode == WM_NOTIFICATION_RELEASED ) {
+                        if( button_options[5] ) {
+                            option_press( button_options[5] );
+                        }
+                    }
+                    break;
+                    // USER START (Optionally insert additional code for further Ids)
+                    // USER END
+            }
+            refreshMenu(hCategoryButton, hButtons, button_options, currentCategory);
+            break;
+            // USER START (Optionally insert additional message handling)
+            // USER END
+        default:
+            WM_DefaultProc(pMsg);
+            break;
     }
-    break;
-  // USER START (Optionally insert additional message handling)
-  // USER END
-  default:
-    WM_DefaultProc(pMsg);
-    break;
-  }
 }
 
 /*********************************************************************
