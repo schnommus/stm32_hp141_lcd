@@ -32,6 +32,7 @@ AFLAGS	= $(MCFLAGS)
 SRC = \
 	src/main.c \
 	src/maintask.c \
+	src/options.c \
 	src/spectrogram.c \
 	src/set_frequencyDLG.c \
 	src/menuDLG.c \
