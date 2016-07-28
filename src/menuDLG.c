@@ -100,7 +100,7 @@ void option_press( option_t *o ) {
 }
 
 void option_to_string( option_t *o, char *buf ) {
-    char value[32] = "";
+    char value[64] = "";
     if( o->type == OPTION_TYPE_SELECTION ) {
         selection_option_t *so = o->data;
         for( int i = 0; i != so->nSelections; ++i ) {
@@ -114,16 +114,16 @@ void option_to_string( option_t *o, char *buf ) {
         if ( 1e3 < f && f < 1e6 ) {
             f /= 1e3;
             postfix = "k";
-        } else if (1e6 < f && f < 1e9 ) {
+        } else if (1e6 <= f && f < 1e9 ) {
             f /= 1e6;
             postfix = "M";
-        } else if( 1e9 < f && f < 1e12 ) {
+        } else if( 1e9 <= f && f < 1e12 ) {
             f /= 1e9;
             postfix = "G";
         } else {
             // Nothing
         }
-        snprintf(value, 32, "%g %sHz", f, postfix);
+        snprintf(value, 64, "%i %sHz", (int)f, postfix);
     } else {
         // Nothing, unknown option type
     }
@@ -131,6 +131,8 @@ void option_to_string( option_t *o, char *buf ) {
 }
 
 void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_options, int currentCategory) {
+    asm volatile ("cpsid i" : : : "memory");
+
     options_refresh();
 
     category_t *this_category = &get_option_menu()->categories[currentCategory];
@@ -154,6 +156,8 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_o
             ++currentButton;
         }
     }
+
+    asm volatile ("cpsie i" : : : "memory");
 }
 
 // USER START (Optionally insert additional static code)
@@ -201,6 +205,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
         case WM_NOTIFY_PARENT:
             Id    = WM_GetId(pMsg->hWinSrc);
             NCode = pMsg->Data.v;
+            printf("WM_NOTIFY: ID:%i, NCODE:%i\n", Id, NCode);
             switch(Id) {
                 case ID_BUTTON_CATEGORY: // Notifications sent by '1'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {

@@ -23,9 +23,9 @@ STM32_INCLUDES = -I$(STM32_LIBS)/Utilities \
     -I$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Inc \
     -I$(STM32_LIBS)/Middlewares/ST/STemWin/inc \
 
-OPTIMIZE = -O3
+OPTIMIZE = -O0
 
-CFLAGS	= $(MCFLAGS) $(STD)  $(OPTIMIZE)  $(DEFS) -Iinc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,src/sys/STM32F746NGHx_FLASH.ld
+CFLAGS	= $(MCFLAGS) $(STD) -g $(OPTIMIZE)  $(DEFS) -Iinc -I./ -I./ $(STM32_INCLUDES) -L$(STM32_LIBS)/Middlewares/ST/STemWin/Lib  -Wl,-T,src/sys/STM32F746NGHx_FLASH.ld
 
 AFLAGS	= $(MCFLAGS)
 

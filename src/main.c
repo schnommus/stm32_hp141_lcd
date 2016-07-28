@@ -64,6 +64,28 @@ void BSP_Background(void);
 extern void MainTask(void);
 static void CPU_CACHE_Enable(void);
 
+UART_HandleTypeDef uart0;
+
+int __io_putchar(int ch)
+{
+    unsigned char theCharacter = ch;
+    HAL_UART_Transmit(&uart0, &theCharacter, 1, 1000);
+    return ch;
+}
+
+void stdio_uart_init() {
+    uart0.Instance        = USARTx;
+    uart0.Init.BaudRate   = 115200;
+    uart0.Init.WordLength = UART_WORDLENGTH_8B;
+    uart0.Init.StopBits   = UART_STOPBITS_1;
+    uart0.Init.Parity     = UART_PARITY_NONE;
+    uart0.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    uart0.Init.Mode       = UART_MODE_TX_RX;
+    uart0.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+
+    HAL_UART_Init( &uart0 );
+}
+
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -90,40 +112,36 @@ int main(void)
   /* Configure LED1 */
   BSP_LED_Init(LED1);
 
+  stdio_uart_init();
+
+  printf("SPECTRUM ANALYZER DIGITIZER V0.1a\n");
+  printf("*** SEBASTIAN HOLZAPFEL 2016 ***\n");
+
   /***********************************************************/
-  
-  /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
+  // Compute the prescaler value to have TIM3 counter clock equal to 10 KHz
   uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000) - 1;
-  
-  /* Set TIMx instance */
+
+  // Set TIMx instance
   TimHandle.Instance = TIM3;
-   
-  /* Initialize TIM3 peripheral as follows:
-       + Period = 500 - 1
-       + Prescaler = ((SystemCoreClock/2)/10000) - 1
-       + ClockDivision = 0
-       + Counter direction = Up
-  */
   TimHandle.Init.Period = 10000 - 1;
   TimHandle.Init.Prescaler = uwPrescalerValue;
   TimHandle.Init.ClockDivision = 0;
   TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
   if(HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
   {
-    while(1) 
+    while(1)
     {
     }
   }
-  
-  /*##-2- Start the TIM Base generation in interrupt mode ####################*/
-  /* Start Channel1 */
+
+  //##-2- Start the TIM Base generation in interrupt mode ####################
+  // Start Channel1
   if(HAL_TIM_Base_Start_IT(&TimHandle) != HAL_OK)
   {
     while(1) 
     {
     }
   }
-  
   /***********************************************************/
   
   /* Init the STemWin GUI Library */
@@ -253,7 +271,7 @@ static void SystemClock_Config(void)
 static void CPU_CACHE_Enable(void)
 {
   /* Enable I-Cache */
-  SCB_EnableICache();
+  //SCB_EnableICache();
 
   /* Enable D-Cache */
   //SCB_EnableDCache();
@@ -277,5 +295,56 @@ void assert_failed(uint8_t* file, uint32_t line)
   {}
 }
 #endif
+
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{  
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* Enable GPIO TX/RX clock */
+  USARTx_TX_GPIO_CLK_ENABLE();
+  USARTx_RX_GPIO_CLK_ENABLE();
+
+
+  /* Enable USARTx clock */
+  USARTx_CLK_ENABLE(); 
+  
+  /*##-2- Configure peripheral GPIO ##########################################*/  
+  /* UART TX GPIO pin configuration  */
+  GPIO_InitStruct.Pin       = USARTx_TX_PIN;
+  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull      = GPIO_PULLUP;
+  GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+  GPIO_InitStruct.Alternate = USARTx_TX_AF;
+
+  HAL_GPIO_Init(USARTx_TX_GPIO_PORT, &GPIO_InitStruct);
+
+  /* UART RX GPIO pin configuration  */
+  GPIO_InitStruct.Pin = USARTx_RX_PIN;
+  GPIO_InitStruct.Alternate = USARTx_RX_AF;
+
+  HAL_GPIO_Init(USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
+}
+
+/**
+  * @brief UART MSP De-Initialization 
+  *        This function frees the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  *          - Revert GPIO configuration to their default state
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+{
+  /*##-1- Reset peripherals ##################################################*/
+  USARTx_FORCE_RESET();
+  USARTx_RELEASE_RESET();
+
+  /*##-2- Disable peripherals and GPIO Clocks #################################*/
+  /* Configure USART6 Tx as alternate function  */
+  HAL_GPIO_DeInit(USARTx_TX_GPIO_PORT, USARTx_TX_PIN);
+  /* Configure USART6 Rx as alternate function  */
+  HAL_GPIO_DeInit(USARTx_RX_GPIO_PORT, USARTx_RX_PIN);
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
