@@ -23,6 +23,7 @@
 
 #include "menuDLG.h"
 #include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
 #include "FRAMEWIN.h"
 #include "options.h"
@@ -99,6 +100,29 @@ void option_press( option_t *o ) {
     }
 }
 
+void print_scientific( double f, char *units, char *dest ) {
+    char *postfix = "";
+    if ( 1e3 < f && f < 1e6 ) {
+        f /= 1e3;
+        postfix = "k";
+    } else if (1e6 <= f && f < 1e9 ) {
+        f /= 1e6;
+        postfix = "M";
+    } else if( 1e9 <= f && f < 1e12 ) {
+        f /= 1e9;
+        postfix = "G";
+    } else {
+        // Nothing
+    }
+    long long section_1 = (long long)f;
+    long long section_2 = (long long)fabs(f*1000000);
+    char section_2_str[32] = "";
+    if( section_2 >= 1 ) {
+        snprintf(section_2_str, 32, ".%lld", section_2);
+    }
+    snprintf(dest, 64, "%lld%s %s%s", section_1, section_2_str, postfix, units);
+}
+
 void option_to_string( option_t *o, char *buf ) {
     char value[64] = "";
     if( o->type == OPTION_TYPE_SELECTION ) {
@@ -110,20 +134,7 @@ void option_to_string( option_t *o, char *buf ) {
         }
     } else if( o->type == OPTION_TYPE_FREQUENCY ) {
         double f = *(double*)o->data;
-        char *postfix = "";
-        if ( 1e3 < f && f < 1e6 ) {
-            f /= 1e3;
-            postfix = "k";
-        } else if (1e6 <= f && f < 1e9 ) {
-            f /= 1e6;
-            postfix = "M";
-        } else if( 1e9 <= f && f < 1e12 ) {
-            f /= 1e9;
-            postfix = "G";
-        } else {
-            // Nothing
-        }
-        snprintf(value, 64, "%i %sHz", (int)f, postfix);
+        print_scientific(f, "Hz", value);
     } else {
         // Nothing, unknown option type
     }
