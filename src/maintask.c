@@ -59,10 +59,6 @@ void MainTask(void) {
     FRAMEWIN_SetDefaultTitleHeight(0);
     FRAMEWIN_SetDefaultBorderSize(0);
 
-    //GUI_HWIN freq_dialog = Createset_frequency();
-    //WM_ShowWindow( freq_dialog );
-    //WM_SetFocus( freq_dialog );
-
     GUI_HWIN menu_dialog = Createmenu();
     WM_ShowWindow( menu_dialog );
     WM_SetFocus( menu_dialog );

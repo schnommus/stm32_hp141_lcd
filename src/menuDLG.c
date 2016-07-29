@@ -22,6 +22,7 @@
 // USER END
 
 #include "menuDLG.h"
+#include "set_frequencyDLG.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -94,7 +95,9 @@ void option_press( option_t *o ) {
             }
         }
     } else if( o->type == OPTION_TYPE_FREQUENCY ) {
-        GUI_MessageBox("NOT YET EY!", "frequency alter", 0);
+        GUI_HWIN freq_dialog = Createset_frequency();
+        WM_ShowWindow( freq_dialog );
+        WM_SetFocus( freq_dialog );
     } else {
         // Nothing, unknown option type
     }
@@ -142,7 +145,8 @@ void option_to_string( option_t *o, char *buf ) {
 }
 
 void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_options, int currentCategory) {
-    asm volatile ("cpsid i" : : : "memory");
+    //DEBUG INSTRUMENT
+    //asm volatile ("cpsid i" : : : "memory");
 
     options_refresh();
 
@@ -168,7 +172,8 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_o
         }
     }
 
-    asm volatile ("cpsie i" : : : "memory");
+    //DEBUG INSTRUMENT
+    //asm volatile ("cpsie i" : : : "memory");
 }
 
 // USER START (Optionally insert additional static code)
