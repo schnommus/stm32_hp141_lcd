@@ -128,22 +128,27 @@ void dtoa(char *dest, double n) {
 }
 
 void print_scientific( double f, char *units, char *dest ) {
-    char *postfix = "";
-    if ( 1e3 < f && f < 1e6 ) {
-        f /= 1e3;
-        postfix = "k";
-    } else if (1e6 <= f && f < 1e9 ) {
-        f /= 1e6;
-        postfix = "M";
-    } else if( 1e9 <= f && f < 1e12 ) {
-        f /= 1e9;
-        postfix = "G";
-    } else {
-        // Nothing
+    char *si_prefixes = "yzafpnum kMGTPEZY";
+    int prefix_index = 0;
+
+    for(; prefix_index != 17; ++prefix_index) {
+        double lower = pow(1e3, prefix_index - 8);
+        double upper = pow(1e3, prefix_index - 7);
+        if( lower < f && f < upper ) {
+            f /= lower;
+            break;
+        }
     }
+
     char value_str[16];
     dtoa(value_str, f);
-    snprintf(dest, 64, "%s %s%s", value_str, postfix, units);
+
+    // Ignore prefix if there isn't one
+    if( si_prefixes[prefix_index] == ' ' ) {
+        snprintf(dest, 64, "%s %s", value_str, units);
+    } else {
+        snprintf(dest, 64, "%s %c%s", value_str, si_prefixes[prefix_index], units);
+    }
 }
 
 void option_to_string( option_t *o, char *buf ) {
