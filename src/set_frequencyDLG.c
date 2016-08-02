@@ -116,7 +116,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
             NCode = pMsg->Data.v;
 
             // Button presses
-            if( ID_BUTTON_0 <= Id && ID_BUTTON_9 <= Id &&
+            if( ID_BUTTON_0 <= Id && Id <= ID_BUTTON_9 &&
                 NCode == WM_NOTIFICATION_RELEASED) {
                 PressNumber(pMsg->hWin, Id-ID_BUTTON_0);
             }
