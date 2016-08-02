@@ -103,6 +103,30 @@ void option_press( option_t *o ) {
     }
 }
 
+void dtoa(char *dest, double n) {
+    const int MAX_LEN = 16;
+
+    // Print everything before the decimal point
+    snprintf(dest, MAX_LEN, "%i", (int)n);
+
+    // Subtract everything left of decimal point
+    n -= (double)(int)n;
+    n *= 1e3;
+
+    if( n >=1 ) {
+        // Print everything after the decimal point (with RHS zero padding)
+        snprintf(dest + strlen(dest), MAX_LEN-strlen(dest), ".%03i", (int)n);
+
+        // Erase trailing zeros
+        int i = strlen(dest)-1;
+        for(; i != 0; --i) {
+            if( dest[i] != '0' )
+                break;
+        }
+        dest[i] = 0;
+    }
+}
+
 void print_scientific( double f, char *units, char *dest ) {
     char *postfix = "";
     if ( 1e3 < f && f < 1e6 ) {
@@ -117,13 +141,9 @@ void print_scientific( double f, char *units, char *dest ) {
     } else {
         // Nothing
     }
-    long long section_1 = (long long)f;
-    long long section_2 = (long long)fabs(f*1000000);
-    char section_2_str[32] = "";
-    if( section_2 >= 1 ) {
-        snprintf(section_2_str, 32, ".%lld", section_2);
-    }
-    snprintf(dest, 64, "%lld%s %s%s", section_1, section_2_str, postfix, units);
+    char value_str[16];
+    dtoa(value_str, f);
+    snprintf(dest, 64, "%s %s%s", value_str, postfix, units);
 }
 
 void option_to_string( option_t *o, char *buf ) {
