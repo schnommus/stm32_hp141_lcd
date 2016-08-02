@@ -1,6 +1,7 @@
 #include "set_frequencyDLG.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "menuDLG.h"
 
 #define ID_FRAMEWIN_0    (GUI_ID_USER + 0x02)
 #define ID_EDIT_0    (GUI_ID_USER + 0x03)
@@ -83,9 +84,28 @@ void PressDot(WM_HWIN hWin) {
 
 void CloseThis(WM_HWIN hWin) {
     WM_HideWindow(hWin);
+    option_setting_hook = NULL;
+    // TODO: Destroy this!
 }
 
-void SetValueAndCloseThis(WM_HWIN hWin, double muliplier) {
+void SetValueAndCloseThis(WM_HWIN hWin, double multiplier) {
+    // Not setting an option or something wrong? Not good!
+    if(option_setting_hook == NULL || option_setting_hook->type != OPTION_TYPE_FREQUENCY) {
+        printf("FAILED TO SET OPTION, NULL OR INVALID OPTION HOOK TYPE\n");
+    } else {
+        WM_HWIN editItem;
+        editItem = WM_GetDialogItem(hWin, ID_EDIT_0);
+
+        char myValue_str[32];
+        EDIT_GetText(editItem, myValue_str, 32);
+        double myValue = atof(myValue_str) * multiplier;
+
+        *(double*)option_setting_hook->data = myValue;
+
+        globalMenuRefresh();
+    }
+
+    CloseThis(hWin);
 }
 
 static void _cbDialog(WM_MESSAGE * pMsg) {

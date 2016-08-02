@@ -27,8 +27,19 @@
 #include <math.h>
 #include <stdio.h>
 #include "FRAMEWIN.h"
-#include "options.h"
 #include "string.h"
+
+option_t *option_setting_hook = NULL;
+WM_HWIN menu_hwin = 0;
+
+typedef struct _menu_attributes {
+    WM_HWIN hCategoryButton;
+    WM_HWIN hButtons[6];
+    option_t *button_options[6];
+    int currentCategory;
+} menu_attributes_t;
+
+static menu_attributes_t menu_attr;
 
 /*********************************************************************
 *
@@ -95,6 +106,7 @@ void option_press( option_t *o ) {
             }
         }
     } else if( o->type == OPTION_TYPE_FREQUENCY ) {
+        option_setting_hook = o;
         GUI_HWIN freq_dialog = Createset_frequency();
         WM_ShowWindow( freq_dialog );
         WM_SetFocus( freq_dialog );
@@ -106,21 +118,31 @@ void option_press( option_t *o ) {
 void dtoa(char *dest, double n) {
     const int MAX_LEN = 16;
 
-    // Print everything before the decimal point
-    snprintf(dest, MAX_LEN, "%i", (int)n);
+    int n_lhs = (int)n;
 
     // Subtract everything left of decimal point
     n -= (double)(int)n;
-    n *= 1e3;
+    n *= 1e4;
+
+    int out = (int)n;
+    out = out%10 >=5 ? out + 10 : out;
+
+    if(out > 1e4) {
+        ++n_lhs;
+        n = 0;
+    }
+
+    // Print everything before the decimal point
+    snprintf(dest, MAX_LEN, "%i", n_lhs);
 
     if( n >=1 ) {
         // Print everything after the decimal point (with RHS zero padding)
-        snprintf(dest + strlen(dest), MAX_LEN-strlen(dest), ".%03i", (int)n);
+        snprintf(dest + strlen(dest), MAX_LEN-strlen(dest), ".%03i", out/10);
 
         // Erase trailing zeros
-        int i = strlen(dest)-1;
+        int i = strlen(dest);
         for(; i != 0; --i) {
-            if( dest[i] != '0' )
+            if( dest[i-1] != '0' )
                 break;
         }
         dest[i] = 0;
@@ -201,6 +223,13 @@ void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_o
     //asm volatile ("cpsie i" : : : "memory");
 }
 
+void globalMenuRefresh() {
+    refreshMenu(menu_attr.hCategoryButton,
+            menu_attr.hButtons,
+            menu_attr.button_options,
+            menu_attr.currentCategory);
+}
+
 // USER START (Optionally insert additional static code)
 // USER END
 
@@ -215,32 +244,30 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 
     // USER START (Optionally insert additional variables)
     // USER END
-
-    static WM_HWIN hCategoryButton;
-    static WM_HWIN hButtons[6];
-    static option_t *button_options[6];
-    static int currentCategory = 0;
-
+    //
     switch (pMsg->MsgId) {
         case WM_INIT_DIALOG:
             hItem = WM_GetDialogItem(pMsg->hWin, ID_FRAMEWIN_0);
 
 
-            hCategoryButton = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
-            BUTTON_SetFont(hCategoryButton, GUI_FONT_20B_ASCII);
+            menu_attr.hCategoryButton = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_CATEGORY);
+            BUTTON_SetFont(menu_attr.hCategoryButton, GUI_FONT_20B_ASCII);
 
-            hButtons[0] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
-            hButtons[1] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
-            hButtons[2] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
-            hButtons[3] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
-            hButtons[4] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
-            hButtons[5] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
+            menu_attr.hButtons[0] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
+            menu_attr.hButtons[1] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
+            menu_attr.hButtons[2] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_2);
+            menu_attr.hButtons[3] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_3);
+            menu_attr.hButtons[4] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_4);
+            menu_attr.hButtons[5] = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_5);
 
             for( int i = 0; i !=  N_MENU_BUTTONS; ++i ) {
-                BUTTON_SetFont(hButtons[i], GUI_FONT_13B_ASCII);
+                BUTTON_SetFont(menu_attr.hButtons[i], GUI_FONT_13B_ASCII);
             }
 
-            refreshMenu(hCategoryButton, hButtons, button_options, currentCategory);
+            refreshMenu(menu_attr.hCategoryButton,
+                        menu_attr.hButtons,
+                        menu_attr.button_options,
+                        menu_attr.currentCategory);
 
             break;
         case WM_NOTIFY_PARENT:
@@ -248,58 +275,63 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
             NCode = pMsg->Data.v;
             printf("WM_NOTIFY: ID:%i, NCODE:%i\n", Id, NCode);
             switch(Id) {
-                case ID_BUTTON_CATEGORY: // Notifications sent by '1'
+                case ID_BUTTON_CATEGORY: // Notifications sent by 'Category'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        ++currentCategory;
-                        currentCategory %= get_option_menu()->nCategories;
+                        ++menu_attr.currentCategory;
+                        menu_attr.currentCategory %= get_option_menu()->nCategories;
                     }
                     break;
                 case ID_BUTTON_0: // Notifications sent by '1'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[0] ) {
-                            option_press( button_options[0] );
+                        if( menu_attr.button_options[0] ) {
+                            option_press( menu_attr.button_options[0] );
                         }
                     }
                     break;
                 case ID_BUTTON_1: // Notifications sent by '2'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[1] ) {
-                            option_press( button_options[1] );
+                        if( menu_attr.button_options[1] ) {
+                            option_press( menu_attr.button_options[1] );
                         }
                     }
                     break;
                 case ID_BUTTON_2: // Notifications sent by '3'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[2] ) {
-                            option_press( button_options[2] );
+                        if( menu_attr.button_options[2] ) {
+                            option_press( menu_attr.button_options[2] );
                         }
                     }
                     break;
                 case ID_BUTTON_3: // Notifications sent by '4'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[3] ) {
-                            option_press( button_options[3] );
+                        if( menu_attr.button_options[3] ) {
+                            option_press( menu_attr.button_options[3] );
                         }
                     }
                     break;
                 case ID_BUTTON_4: // Notifications sent by '5'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[4] ) {
-                            option_press( button_options[4] );
+                        if( menu_attr.button_options[4] ) {
+                            option_press( menu_attr.button_options[4] );
                         }
                     }
                     break;
                 case ID_BUTTON_5: // Notifications sent by '6'
                     if( NCode == WM_NOTIFICATION_RELEASED ) {
-                        if( button_options[5] ) {
-                            option_press( button_options[5] );
+                        if( menu_attr.button_options[5] ) {
+                            option_press( menu_attr.button_options[5] );
                         }
                     }
                     break;
                     // USER START (Optionally insert additional code for further Ids)
                     // USER END
             }
-            refreshMenu(hCategoryButton, hButtons, button_options, currentCategory);
+
+            refreshMenu(menu_attr.hCategoryButton,
+                        menu_attr.hButtons,
+                        menu_attr.button_options,
+                        menu_attr.currentCategory);
+
             break;
             // USER START (Optionally insert additional message handling)
             // USER END
@@ -323,6 +355,8 @@ WM_HWIN Createmenu(void) {
   WM_HWIN hWin;
 
   hWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), _cbDialog, WM_HBKWIN, 0, 0);
+  menu_hwin = hWin;
+  menu_attr.currentCategory = 0;
   return hWin;
 }
 
