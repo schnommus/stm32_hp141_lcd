@@ -1,3 +1,4 @@
+#include "adf5355.h"
 
 int adf5355_set_frequency_hz( double f ) {
     return 0;
