@@ -75,13 +75,10 @@ void spectrogram_draw(spectrogram_t* s) {
     }
 }
 
+extern uint16_t* adc_buffer;
+
 void spectrogram_fake_data(spectrogram_t* s) {
-    static float inc = 0;
-    inc += 0.05;
     for( int j = 0; j != s->npoints; ++j ) {
-        s->data[j] = s->size_y -
-                    fmax(rand()%30+10,
-                         rand()%2+s->npoints/2-20 - (j-s->npoints/2+50*sin(inc))*(j-s->npoints/2+50*sin(inc))
-                         );
+        s->data[j] = adc_buffer[0]/16;
     }
 }

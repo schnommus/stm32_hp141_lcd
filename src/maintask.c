@@ -8,6 +8,7 @@
 #include "menuDLG.h"
 #include "BUTTON.h"
 #include "options.h"
+#include "adc.h"
 
 short points[400];
 
@@ -24,6 +25,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void MainTask(void) {
+
+    adc_init();
 
     BSP_TS_Init(480, 272);
 

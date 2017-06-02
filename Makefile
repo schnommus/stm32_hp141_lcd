@@ -30,6 +30,7 @@ AFLAGS	= $(MCFLAGS)
 
 SRC = \
 	src/main.c \
+	src/adc.c \
 	src/maintask.c \
 	src/options.c \
 	src/spectrogram.c \
@@ -47,6 +48,8 @@ SRC = \
 	$(STM32_LIBS)/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_lcd.c \
 	$(STM32_LIBS)/Drivers/BSP/Components/ft5336/ft5336.c \
 	$(STM32_LIBS)/Middlewares/ST/STemWin/OS/GUI_X.c \
+	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c \
+	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc_ex.c \
 	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c \
 	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c \
 	$(STM32_LIBS)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c \
