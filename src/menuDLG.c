@@ -115,7 +115,7 @@ void option_press( option_t *o ) {
     }
 }
 
-void dtoa(char *dest, double n) {
+void dtoa_nobug(char *dest, double n) {
     const int MAX_LEN = 16;
 
     int n_lhs = (int)n;
@@ -163,7 +163,7 @@ void print_scientific( double f, char *units, char *dest ) {
     }
 
     char value_str[16];
-    dtoa(value_str, f);
+    dtoa_nobug(value_str, f);
 
     // Ignore prefix if there isn't one
     if( si_prefixes[prefix_index] == ' ' ) {
