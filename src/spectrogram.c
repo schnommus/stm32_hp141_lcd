@@ -4,6 +4,7 @@
 #include "stm32f7xx_hal.h"
 #include "GUI.h"
 #include "spectrogram.h"
+#include "adc.h"
 
 
 spectrogram_t *spectrogram_default() {
@@ -75,10 +76,13 @@ void spectrogram_draw(spectrogram_t* s) {
     }
 }
 
-extern uint16_t* adc_buffer;
+extern volatile uint32_t adc_buffer[512];
 
 void spectrogram_fake_data(spectrogram_t* s) {
-    for( int j = 0; j != s->npoints; ++j ) {
-        s->data[j] = adc_buffer[0]/16;
+    if(adc_new_data_available()) {
+        for( int j = 0; j != s->npoints; ++j ) {
+            s->data[j] = s->size_y - (float)s->size_y * ((float)adc_buffer[j]/4096.0);
+        }
     }
+    adc_refresh();
 }

@@ -1,5 +1,25 @@
 #include "adc.h"
 
+/* TEXT DUMP FROM EXAMPLE
+This example describes how to use the ADC3 and DMA to transfer continuously
+converted data from ADC3 to memory.
+
+The ADC3 is configured to convert continuously ADC_CHANNEL_8.
+
+Each time an end of conversion occurs the DMA transfers, in circular mode, the
+converted data from ADC3 DR register to the uhADCxConvertedValue variable.
+
+The uhADCxConvertedValue read value is coded on 12 bits, the Vref+ reference voltage is connected
+on the board to VDD (+3.3V), the Vref- reference voltage is connected on the board to the ground.
+To convert the read value in volts, here is the equation to apply :
+Voltage = uhADCxConvertedValue * (Vref+ - Vref-) / (2^12) = uhADCxConvertedValue * 3.3 / 4096
+
+In this example, the system clock is 216MHz, APB2 = 108MHz and ADC clock = APB2/4.
+Since ADC3 clock is 27 MHz and sampling time is set to 3 cycles, the conversion
+time to 12bit data is 12 cycles so the total conversion time is (12+3)/27 = 0.56us(1.57Msps).
+
+User can vary the ADC_CHANNEL_8 voltage by applying an input voltage on pin PF10 connected to Arduino CN5 pin A1.
+*/
 
 #define ADCx                            ADC3
 #define ADCx_CLK_ENABLE()               __HAL_RCC_ADC3_CLK_ENABLE()
@@ -26,10 +46,11 @@
 
 ADC_HandleTypeDef    AdcHandle;
 
-#define ADC_BUF_LENGTH 4096
+#define ADC_BUF_LENGTH 512
 
 volatile uint32_t adc_buffer[ADC_BUF_LENGTH] = {0};
 
+int adc_last_conversion_complete = 0;
 
 /**
 * @brief  This function handles DMA interrupt request.
@@ -62,7 +83,7 @@ int adc_init() {
     AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.NbrOfConversion       = 1;
-    AdcHandle.Init.DMAContinuousRequests = ENABLE;
+    AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = DISABLE;
 
     if (HAL_ADC_Init(&AdcHandle) != HAL_OK)
@@ -92,6 +113,25 @@ int adc_init() {
     }
 }
 
+int adc_new_data_available() {
+    return adc_last_conversion_complete;
+}
+
+void adc_refresh() {
+    if(adc_last_conversion_complete) {
+
+        adc_last_conversion_complete = 1;
+
+        if(HAL_ADC_Start_DMA(&AdcHandle,
+                             (uint32_t*)adc_buffer,
+                             ADC_BUF_LENGTH) != HAL_OK) {
+
+            /* Start Conversation Error */
+            adc_error_handler();
+        }
+    }
+}
+
 /**
   * @brief  Conversion complete callback in non blocking mode
   * @param  AdcHandle : AdcHandle handle
@@ -100,6 +140,10 @@ int adc_init() {
   * @retval None
   */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
+    if(HAL_ADC_Stop_DMA(AdcHandle) != HAL_OK) {
+        adc_error_handler();
+    }
+    adc_last_conversion_complete = 1;
 }
 
 /**
