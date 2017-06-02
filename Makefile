@@ -76,5 +76,8 @@ all: $(EXECUTABLE)
 $(EXECUTABLE): $(SRC)
 	$(CC) $(CFLAGS) $^ -o $@ -l:STemWin532_CM7_GCC_ot.a -lm
 
-clean:
-	rm -f *.elf
+debug_server:
+	sudo openocd -f board/stm32f7discovery.cfg
+
+debug_gdb:
+	arm-none-eabi-gdb out.elf -ex "target remote localhost:3333" -ex "monitor reset halt" -ex "load" -ex "monitor reset halt" -ex "b main" -ex "c"
