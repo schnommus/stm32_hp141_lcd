@@ -31,6 +31,7 @@ User can vary the ADC_CHANNEL_8 voltage by applying an input voltage on pin PF10
 
 /* Definition for ADCx Channel Pin */
 #define ADCx_CHANNEL_PIN                GPIO_PIN_10
+#define ADCx_CHANNEL_PIN2               GPIO_PIN_9
 #define ADCx_CHANNEL_GPIO_PORT          GPIOF
 
 /* Definition for ADCx's Channel */
@@ -72,7 +73,7 @@ int adc_init() {
     AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV4;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
     /* Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1) */
-    AdcHandle.Init.ScanConvMode          = DISABLE;
+    AdcHandle.Init.ScanConvMode          = ENABLE;
     AdcHandle.Init.ContinuousConvMode    = ENABLE;
     /* Continuous mode enabled to have continuous conversion  */
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;
@@ -82,7 +83,7 @@ int adc_init() {
     /* Conversion start trigged at each external event */
     AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    AdcHandle.Init.NbrOfConversion       = 1;
+    AdcHandle.Init.NbrOfConversion       = 2;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = DISABLE;
 
@@ -95,6 +96,19 @@ int adc_init() {
     /*##-2- Configure ADC regular channel ######################################*/
     sConfig.Channel      = ADC_CHANNEL_8;
     sConfig.Rank         = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.Offset       = 0;
+
+    if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
+    {
+        /* Channel Configuration Error */
+        adc_error_handler();
+    }
+
+    // Configure the secondary channel
+
+    sConfig.Channel      = ADC_CHANNEL_7;
+    sConfig.Rank         = 2;
     sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
     sConfig.Offset       = 0;
 
@@ -170,6 +184,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
   /*##-2- Configure peripheral GPIO ##########################################*/
   /* ADC Channel GPIO pin configuration */
   GPIO_InitStruct.Pin = ADCx_CHANNEL_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(ADCx_CHANNEL_GPIO_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = ADCx_CHANNEL_PIN2;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ADCx_CHANNEL_GPIO_PORT, &GPIO_InitStruct);

@@ -76,12 +76,16 @@ void spectrogram_draw(spectrogram_t* s) {
     }
 }
 
-extern volatile uint32_t adc_buffer[512];
+#define ADC_BUF_SIZE 512
+extern volatile uint32_t adc_buffer[ADC_BUF_SIZE];
 
 void spectrogram_fake_data(spectrogram_t* s) {
     if(adc_new_data_available()) {
-        for( int j = 0; j != s->npoints; ++j ) {
-            s->data[j] = s->size_y - (float)s->size_y * ((float)adc_buffer[j]/4096.0);
+        for( int j = 0; j != ADC_BUF_SIZE/2; ++j ) {
+            uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
+            x_val = (x_val * s->npoints) / 4096;
+            y_val = s->size_y - (s->size_y * y_val)/4096;
+            s->data[x_val] = y_val;
         }
     }
     adc_refresh();
