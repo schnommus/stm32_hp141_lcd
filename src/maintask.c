@@ -26,13 +26,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void MainTask(void) {
 
-    adc_init();
 
     BSP_TS_Init(480, 272);
 
     options_init();
 
     spectrogram_t *s = spectrogram_default();
+
+    adc_set_spectrogram(s);
+
+    adc_init();
 
     BUTTON_SKINFLEX_PROPS Props;
     BUTTON_GetSkinFlexProps(&Props, BUTTON_SKINFLEX_PI_ENABLED);

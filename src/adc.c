@@ -47,9 +47,9 @@ User can vary the ADC_CHANNEL_8 voltage by applying an input voltage on pin PF10
 
 ADC_HandleTypeDef    AdcHandle;
 
-#define ADC_BUF_LENGTH 512
+#define ADC_BUF_SIZE 512
 
-volatile uint32_t adc_buffer[ADC_BUF_LENGTH] = {0};
+volatile uint32_t adc_buffer[ADC_BUF_SIZE] = {0};
 
 int adc_last_conversion_complete = 0;
 
@@ -64,6 +64,12 @@ void ADCx_DMA_IRQHandler(void) {
 
 void adc_error_handler() {
     while(1){}
+}
+
+spectrogram_t *adc_spectrogram = 0;
+
+void adc_set_spectrogram(spectrogram_t *s) {
+    adc_spectrogram = s;
 }
 
 int adc_init() {
@@ -84,7 +90,7 @@ int adc_init() {
     AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.NbrOfConversion       = 2;
-    AdcHandle.Init.DMAContinuousRequests = DISABLE;
+    AdcHandle.Init.DMAContinuousRequests = ENABLE;
     AdcHandle.Init.EOCSelection          = DISABLE;
 
     if (HAL_ADC_Init(&AdcHandle) != HAL_OK)
@@ -109,7 +115,7 @@ int adc_init() {
 
     sConfig.Channel      = ADC_CHANNEL_7;
     sConfig.Rank         = 2;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
     sConfig.Offset       = 0;
 
     if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
@@ -120,44 +126,29 @@ int adc_init() {
 
 
     /*##-3- Start the conversion process #######################################*/
-    if(HAL_ADC_Start_DMA(&AdcHandle, (uint32_t*)adc_buffer, ADC_BUF_LENGTH) != HAL_OK)
+    if(HAL_ADC_Start_DMA(&AdcHandle, (uint32_t*)adc_buffer, ADC_BUF_SIZE) != HAL_OK)
     {
         /* Start Conversation Error */
         adc_error_handler();
     }
 }
 
-int adc_new_data_available() {
-    return adc_last_conversion_complete;
-}
-
-void adc_refresh() {
-    if(adc_last_conversion_complete) {
-
-        adc_last_conversion_complete = 1;
-
-        if(HAL_ADC_Start_DMA(&AdcHandle,
-                             (uint32_t*)adc_buffer,
-                             ADC_BUF_LENGTH) != HAL_OK) {
-
-            /* Start Conversation Error */
-            adc_error_handler();
-        }
-    }
-}
-
-/**
-  * @brief  Conversion complete callback in non blocking mode
-  * @param  AdcHandle : AdcHandle handle
-  * @note   This example shows a simple way to report end of conversion, and
-  *         you can add your own implementation.
-  * @retval None
-  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
-    if(HAL_ADC_Stop_DMA(AdcHandle) != HAL_OK) {
-        adc_error_handler();
+    for( int j = ADC_BUF_SIZE/4; j != ADC_BUF_SIZE/2; ++j ) {
+        uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
+        x_val = (x_val * adc_spectrogram->npoints) / 4096;
+        y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
+        adc_spectrogram->data[x_val] = y_val;
     }
-    adc_last_conversion_complete = 1;
+}
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle) {
+    for( int j = 0; j != ADC_BUF_SIZE/4; ++j ) {
+        uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
+        x_val = (x_val * adc_spectrogram->npoints) / 4096;
+        y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
+        adc_spectrogram->data[x_val] = y_val;
+    }
 }
 
 /**
