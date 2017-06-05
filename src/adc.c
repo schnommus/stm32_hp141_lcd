@@ -102,7 +102,7 @@ int adc_init() {
     /*##-2- Configure ADC regular channel ######################################*/
     sConfig.Channel      = ADC_CHANNEL_8;
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
     sConfig.Offset       = 0;
 
     if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
@@ -115,7 +115,7 @@ int adc_init() {
 
     sConfig.Channel      = ADC_CHANNEL_7;
     sConfig.Rank         = 2;
-    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
     sConfig.Offset       = 0;
 
     if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
@@ -133,12 +133,14 @@ int adc_init() {
     }
 }
 
+volatile int prev_x = 0;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
-    int prev_x = 0;
     for( int j = ADC_BUF_SIZE/4; j != ADC_BUF_SIZE/2; ++j ) {
         uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
         x_val = (x_val * adc_spectrogram->npoints) / 4096;
         y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
+        if(x_val < 5) prev_x = 0;
         if(x_val > prev_x) {
             adc_spectrogram->data[x_val] = y_val;
             prev_x = x_val;
@@ -147,12 +149,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
 }
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle) {
-    int prev_x = 0;
     for( int j = 0; j != ADC_BUF_SIZE/4; ++j ) {
         uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
         x_val = (x_val * adc_spectrogram->npoints) / 4096;
         y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
-        adc_spectrogram->data[x_val] = y_val;
+        if(x_val < 5) prev_x = 0;
         if(x_val > prev_x) {
             adc_spectrogram->data[x_val] = y_val;
             prev_x = x_val;

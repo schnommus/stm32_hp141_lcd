@@ -13,8 +13,8 @@ spectrogram_t *spectrogram_default() {
     s->pos_x = 30;
     s->pos_y = 5;
 
-    s->graticules_nx = 12;
-    s->graticules_ny = 10;
+    s->graticules_nx = 10;
+    s->graticules_ny = 8;
 
     s->graticule_start_y = 0;
     s->graticule_step_y = -10;
