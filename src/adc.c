@@ -47,7 +47,7 @@ User can vary the ADC_CHANNEL_8 voltage by applying an input voltage on pin PF10
 
 ADC_HandleTypeDef    AdcHandle;
 
-#define ADC_BUF_SIZE 512
+#define ADC_BUF_SIZE 2048
 
 volatile uint32_t adc_buffer[ADC_BUF_SIZE] = {0};
 
@@ -102,7 +102,7 @@ int adc_init() {
     /*##-2- Configure ADC regular channel ######################################*/
     sConfig.Channel      = ADC_CHANNEL_8;
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
     sConfig.Offset       = 0;
 
     if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
@@ -115,7 +115,7 @@ int adc_init() {
 
     sConfig.Channel      = ADC_CHANNEL_7;
     sConfig.Rank         = 2;
-    sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
     sConfig.Offset       = 0;
 
     if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
