@@ -15,11 +15,13 @@ enum option_ids {
     OPTION_ID_VIEW_WATERFALL,
     OPTION_ID_VIEW_WATERFALL_ON,
     OPTION_ID_VIEW_WATERFALL_OFF,
+    OPTION_ID_VIEW_NORMALISE,
 };
 
 enum option_types {
     OPTION_TYPE_SELECTION,
     OPTION_TYPE_FREQUENCY,
+    OPTION_TYPE_ACTION,
 };
 
 #define MAX_CATEGORIES 10
@@ -56,6 +58,8 @@ typedef struct _selection_option {
     int value;
 } selection_option_t;
 
+typedef void (*action_callback_fptr)(void); 
+
 // Populate options
 void options_init();
 
@@ -67,6 +71,8 @@ category_t *option_add_category(char *name);
 void option_add_selection(category_t *target, int id, char *name, selection_t *values, int nValues, int init);
 
 void option_add_frequency(category_t *target, int id, char *name, double init);
+
+void option_add_action(category_t *target, int id, char *name, void (*callback)(void) );
 
 void option_enable(int id);
 

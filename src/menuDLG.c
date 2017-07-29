@@ -110,6 +110,9 @@ void option_press( option_t *o ) {
         GUI_HWIN freq_dialog = Createset_frequency();
         WM_ShowWindow( freq_dialog );
         WM_SetFocus( freq_dialog );
+    } else if( o->type == OPTION_TYPE_ACTION ) {
+        void (*o_callback)(void) = (void (*)(void)) o->data;
+        o_callback();
     } else {
         // Nothing, unknown option type
     }
@@ -182,13 +185,16 @@ void option_to_string( option_t *o, char *buf ) {
                 strcpy(value, so->selections[i].name);
             }
         }
+        snprintf(buf, 64, "%s:\n%s", o->name, value);
     } else if( o->type == OPTION_TYPE_FREQUENCY ) {
         double f = *(double*)o->data;
         print_scientific(f, "Hz", value);
+        snprintf(buf, 64, "%s:\n%s", o->name, value);
+    } else if( o->type == OPTION_TYPE_ACTION ) {
+        snprintf(buf, 64, "DO\n%s", o->name);
     } else {
         // Nothing, unknown option type
     }
-    snprintf(buf, 64, "%s:\n%s", o->name, value);
 }
 
 void refreshMenu(WM_HWIN hCategoryButton, WM_HWIN *hButtons, option_t **button_options, int currentCategory) {

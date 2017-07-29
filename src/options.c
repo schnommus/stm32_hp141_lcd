@@ -4,6 +4,11 @@
 
 static menu_t menu;
 
+void thing() {
+    int x = 3;
+}
+
+
 void options_init() {
     // Null out everything
     memset(&menu, 0, sizeof(menu_t));
@@ -50,6 +55,10 @@ void options_init() {
 
     option_add_selection(view, OPTION_ID_VIEW_WATERFALL, "Waterfall", view_waterfall_modes, sizeof(view_waterfall_modes)/sizeof(selection_t), OPTION_ID_VIEW_WATERFALL_OFF);
     option_enable(OPTION_ID_VIEW_WATERFALL);
+
+
+    option_add_action(view, OPTION_ID_VIEW_NORMALISE, "Normalise", &thing);
+    option_enable(OPTION_ID_VIEW_NORMALISE);
 
     options_refresh();
 }
@@ -114,6 +123,16 @@ void option_add_selection(category_t *target, int id, char *name, selection_t *v
     s->value = init;
     s->nSelections = nValues;
     memcpy(s->selections, values, nValues * sizeof(selection_t));
+}
+
+void option_add_action(category_t *target, int id, char *name, void (*callback)(void) ) {
+    option_t *o = &target->options[target->nOptions];
+    ++target->nOptions;
+
+    o->name = name;
+    o->id = id;
+    o->type = OPTION_TYPE_ACTION;
+    o->data = *(void**)(&callback);
 }
 
 option_t *option_get_generic(int id) {
