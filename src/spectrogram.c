@@ -35,14 +35,6 @@ spectrogram_t *spectrogram_default() {
     return s;
 }
 
-void spectrogram_init_data(spectrogram_t *s) {
-    s->data = malloc(s->npoints * sizeof(uint16_t));
-
-    s->data_history = malloc(s->history_readings * sizeof(uint16_t*));
-    for( int i = 0; i != s->history_readings; ++i ) {
-        s->data_history[i] = malloc(s->npoints * sizeof(uint16_t));
-    }
-}
 
 /* Colourmapping code from:
  * https://stackoverflow.com/questions/7706339/grayscale-to-red-green-blue-matlab-jet-color-scale
@@ -70,6 +62,35 @@ double blue( double gray ) {
     return base( gray + 0.5 );
 }
 
+#define LUT_ELEMENTS 64
+uint32_t lut[LUT_ELEMENTS] = {0};
+
+void lut_init() {
+    for(int i = 0; i != LUT_ELEMENTS; ++i) {
+        float gray = (float)i / (float)LUT_ELEMENTS;
+        uint32_t colour =
+            (uint8_t)(red(gray)*255) |
+            (uint8_t)(green(gray)*255) << 8 |
+            (uint8_t)(blue(gray)*255) << 16;
+        lut[i] = colour;
+    }
+}
+
+inline uint32_t lut_lookup(uint8_t v) {
+    return lut[v/(256/LUT_ELEMENTS)];
+}
+
+void spectrogram_init_data(spectrogram_t *s) {
+    lut_init();
+
+    s->data = malloc(s->npoints * sizeof(uint16_t));
+
+    s->data_history = malloc(s->history_readings * sizeof(uint16_t*));
+    for( int i = 0; i != s->history_readings; ++i ) {
+        s->data_history[i] = malloc(s->npoints * sizeof(uint16_t));
+    }
+}
+
 void spectrogram_draw(spectrogram_t* s) {
 
     if(option_get_selection(OPTION_ID_VIEW_WATERFALL) == OPTION_ID_VIEW_WATERFALL_ON) {
@@ -81,13 +102,7 @@ void spectrogram_draw(spectrogram_t* s) {
 
         for( int i = 0; i != s->history_readings; ++i) {
             for( int j = 0; j != s->npoints; ++j) {
-                int colour_index = s->data_history[i][j];
-                float gray = (float)colour_index/255.0;
-                uint32_t colour =
-                    (uint8_t)(red(gray)*255) |
-                    (uint8_t)(green(gray)*255) << 8 |
-                    (uint8_t)(blue(gray)*255) << 16;
-                GUI_SetColor(colour);
+                GUI_SetColor(lut_lookup(s->data_history[i][j])*(255/s->size_y));
                 GUI_DrawVLine(s->pos_x + j,
                               s->pos_y + i * (s->size_y / s->history_readings),
                               s->pos_y + (i+1) * (s->size_y / s->history_readings));
