@@ -1,10 +1,13 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <memory.h>
+
 #include "stm32f7xx_hal.h"
 #include "GUI.h"
 #include "spectrogram.h"
 #include "adc.h"
+#include "options.h"
 
 
 spectrogram_t *spectrogram_default() {
@@ -22,6 +25,9 @@ spectrogram_t *spectrogram_default() {
     s->size_x = 360;
     s->size_y = 225;
 
+    s->history_readings = 20;
+    s->history_position = 0;
+
     s->npoints = s->size_x;
 
     spectrogram_init_data(s);
@@ -30,10 +36,65 @@ spectrogram_t *spectrogram_default() {
 }
 
 void spectrogram_init_data(spectrogram_t *s) {
-    s->data = calloc(s->npoints * sizeof(short),0);
+    s->data = malloc(s->npoints * sizeof(uint16_t));
+
+    s->data_history = malloc(s->history_readings * sizeof(uint16_t*));
+    for( int i = 0; i != s->history_readings; ++i ) {
+        s->data_history[i] = malloc(s->npoints * sizeof(uint16_t));
+    }
+}
+
+/* Colourmapping code from:
+ * https://stackoverflow.com/questions/7706339/grayscale-to-red-green-blue-matlab-jet-color-scale
+ */
+
+double interpolate( double val, double y0, double x0, double y1, double x1 ) {
+    return (val-x0)*(y1-y0)/(x1-x0) + y0;
+}
+
+double base( double val ) {
+    if ( val <= -0.75 ) return 0;
+    else if ( val <= -0.25 ) return interpolate( val, 0.0, -0.75, 1.0, -0.25 );
+    else if ( val <= 0.25 ) return 1.0;
+    else if ( val <= 0.75 ) return interpolate( val, 1.0, 0.25, 0.0, 0.75 );
+    else return 0.0;
+}
+
+double red( double gray ) {
+    return base( gray - 0.5 );
+}
+double green( double gray ) {
+    return base( gray );
+}
+double blue( double gray ) {
+    return base( gray + 0.5 );
 }
 
 void spectrogram_draw(spectrogram_t* s) {
+
+    if(option_get_selection(OPTION_ID_VIEW_WATERFALL) == OPTION_ID_VIEW_WATERFALL_ON) {
+
+        for( int i = 0; i != s->npoints; ++i) {
+            s->data_history[s->history_position][i] = s->data[i];
+        }
+        s->history_position = (++s->history_position) % s->history_readings;
+
+        for( int i = 0; i != s->history_readings; ++i) {
+            for( int j = 0; j != s->npoints; ++j) {
+                int colour_index = s->data_history[i][j];
+                float gray = (float)colour_index/255.0;
+                uint32_t colour =
+                    (uint8_t)(red(gray)*255) |
+                    (uint8_t)(green(gray)*255) << 8 |
+                    (uint8_t)(blue(gray)*255) << 16;
+                GUI_SetColor(colour);
+                GUI_DrawVLine(s->pos_x + j,
+                              s->pos_y + i * (s->size_y / s->history_readings),
+                              s->pos_y + (i+1) * (s->size_y / s->history_readings));
+            }
+        }
+
+    }
 
     GUI_SetColor(GUI_DARKGRAY);
 
@@ -61,9 +122,13 @@ void spectrogram_draw(spectrogram_t* s) {
 
     GUI_DrawRoundedFrame(s->pos_x, s->pos_y, s->size_x+s->pos_x, s->size_y+s->pos_y, 3, 2);
 
-    GUI_SetColor(GUI_YELLOW);
+    if(option_get_selection(OPTION_ID_VIEW_WATERFALL) == OPTION_ID_VIEW_WATERFALL_OFF) {
 
-    GUI_DrawGraph( s->data, s->npoints, s->pos_x, s->pos_y );
+        GUI_SetColor(GUI_YELLOW);
+
+        GUI_DrawGraph( s->data, s->npoints, s->pos_x, s->pos_y );
+
+    }
 
     GUI_SetColor(GUI_WHITE);
     GUI_SetFont(&GUI_Font8_ASCII);

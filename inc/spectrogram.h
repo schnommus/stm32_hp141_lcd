@@ -1,22 +1,29 @@
 #ifndef SPECTROGRAM_H
 #define SPECTROGRAM_H
 
+#include <stdint.h>
+
 typedef struct _spectrogram {
-    short pos_x;
-    short pos_y;
+    int16_t pos_x;
+    int16_t pos_y;
 
-    short size_x;
-    short size_y;
+    int16_t size_x;
+    int16_t size_y;
 
-    short graticules_nx;
-    short graticules_ny;
+    int16_t graticules_nx;
+    int16_t graticules_ny;
 
     float graticule_start_y;
     float graticule_step_y;
 
-    short npoints;
+    int16_t npoints;
 
-    short *data;
+    int16_t history_readings;
+    int16_t history_position;
+
+    int16_t *data;
+
+    uint16_t **data_history;
 } spectrogram_t;
 
 spectrogram_t *spectrogram_default();
