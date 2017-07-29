@@ -101,11 +101,19 @@ void spectrogram_draw(spectrogram_t* s) {
         s->history_position = (++s->history_position) % s->history_readings;
 
         for( int i = 0; i != s->history_readings; ++i) {
-            for( int j = 0; j != s->npoints; ++j) {
+            for( int j = 0; j < s->npoints; j += 3) {
                 GUI_SetColor(lut_lookup(s->data_history[i][j])*(255/s->size_y));
-                GUI_DrawVLine(s->pos_x + j,
-                              s->pos_y + i * (s->size_y / s->history_readings),
-                              s->pos_y + (i+1) * (s->size_y / s->history_readings));
+
+                int i_up = i - s->history_position;
+
+                if(i_up < 0) {
+                    i_up += s->history_readings;
+                }
+
+                GUI_FillRect( s->pos_x + j,
+                              s->pos_y + i_up * (s->size_y / s->history_readings),
+                              s->pos_x + j + 3,
+                              s->pos_y + (i_up+1) * (s->size_y / s->history_readings));
             }
         }
 
