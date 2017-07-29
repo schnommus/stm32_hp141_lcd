@@ -76,14 +76,20 @@ void lut_init() {
     }
 }
 
-inline uint32_t lut_lookup(uint8_t v) {
+uint32_t lut_lookup(uint8_t v) {
     return lut[v/(256/LUT_ELEMENTS)];
 }
 
 void spectrogram_init_data(spectrogram_t *s) {
     lut_init();
 
-    s->data = malloc(s->npoints * sizeof(uint16_t));
+    s->data = malloc(s->npoints * sizeof(int16_t));
+
+    s->data_normal = malloc(s->npoints * sizeof(int16_t));
+
+    for(int i = 0; i != s->npoints; ++i) {
+        s->data_normal[i] = 0;
+    }
 
     s->data_history = malloc(s->history_readings * sizeof(uint16_t*));
     for( int i = 0; i != s->history_readings; ++i ) {

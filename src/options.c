@@ -4,8 +4,10 @@
 
 static menu_t menu;
 
-void thing() {
-    int x = 3;
+int pending_normalization = 0;
+
+void do_normalization() {
+    pending_normalization = 30;
 }
 
 
@@ -57,7 +59,7 @@ void options_init() {
     option_enable(OPTION_ID_VIEW_WATERFALL);
 
 
-    option_add_action(view, OPTION_ID_VIEW_NORMALISE, "Normalise", &thing);
+    option_add_action(view, OPTION_ID_VIEW_NORMALISE, "Normalise", &do_normalization);
     option_enable(OPTION_ID_VIEW_NORMALISE);
 
     options_refresh();

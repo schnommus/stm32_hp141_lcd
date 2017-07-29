@@ -135,6 +135,8 @@ int adc_init() {
 
 volatile int prev_x = 0;
 
+extern int pending_normalization;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
     for( int j = ADC_BUF_SIZE/4; j != ADC_BUF_SIZE/2; ++j ) {
         uint32_t x_val = adc_buffer[j*2], y_val = adc_buffer[j*2+1];
@@ -142,9 +144,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle) {
         y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
         if(x_val < 5) prev_x = 0;
         if(x_val > prev_x) {
-            adc_spectrogram->data[x_val] = y_val;
+            if(pending_normalization) {
+                adc_spectrogram->data_normal[x_val] = adc_spectrogram->size_y/2 - y_val;
+            }
+            adc_spectrogram->data[x_val] = y_val + adc_spectrogram->data_normal[x_val];
             prev_x = x_val;
         }
+    }
+    if(pending_normalization) {
+        --pending_normalization;
     }
 }
 
@@ -155,7 +163,10 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle) {
         y_val = adc_spectrogram->size_y - (adc_spectrogram->size_y * y_val)/4096;
         if(x_val < 5) prev_x = 0;
         if(x_val > prev_x) {
-            adc_spectrogram->data[x_val] = y_val;
+            if(pending_normalization) {
+                adc_spectrogram->data_normal[x_val] = adc_spectrogram->size_y/2 - y_val;
+            }
+            adc_spectrogram->data[x_val] = y_val + adc_spectrogram->data_normal[x_val];
             prev_x = x_val;
         }
     }

@@ -22,6 +22,7 @@ typedef struct _spectrogram {
     int16_t history_position;
 
     int16_t *data;
+    int16_t *data_normal;
 
     uint16_t **data_history;
 } spectrogram_t;
