@@ -1,6 +1,7 @@
 #include "adc.h"
 
 /* TEXT DUMP FROM EXAMPLE
+ * (a lot of this code was ripped out of the stm32 ADC example)
 This example describes how to use the ADC3 and DMA to transfer continuously
 converted data from ADC3 to memory.
 

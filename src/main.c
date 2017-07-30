@@ -1,3 +1,6 @@
+// Note that this file is straight from the STemWin hello-world example
+// Most interesting stuff happens in maintask.c
+
 /**
   ******************************************************************************
   * @file    STemWin/STemWin_HelloWorld/Src/main.c
